@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  MEMBER
+}
+
+enum ProjectEnvironment {
+  PRODUCTION
+  STAGING
+  SANDBOX
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+}
+
+enum MonitoringState {
+  OPERATIONAL
+  DEGRADED
+  DOWN
+  PAUSED
+}
+
+enum RequestOutcome {
+  SUCCESS
+  FAILURE
+  TIMEOUT
+}
+
+enum IncidentKind {
+  FAILURE
+  LATENCY
+}
+
+enum IncidentSeverity {
+  CRITICAL
+  MAJOR
+  MINOR
+}
+
+enum IncidentStatus {
+  OPEN
+  MONITORING
+  RESOLVED
+}
+
+enum AlertChannel {
+  EMAIL
+  SLACK
+  WEBHOOK
+}
+
+enum AlertDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         UserRole  @default(OWNER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  projects     Project[]
+}
+
+model Project {
+  id           String             @id @default(cuid())
+  ownerId      String
+  name         String
+  slug         String
+  environment  ProjectEnvironment
+  description  String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  owner        User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  apis         MonitoredApi[]
+  incidents    Incident[]
+  alertPolicy  AlertPolicy?
+  alertEvents  AlertEvent[]
+
+  @@unique([ownerId, slug])
+  @@index([ownerId])
+}
+
+model AlertPolicy {
+  id                          String   @id @default(cuid())
+  projectId                   String   @unique
+  latencyThresholdMs          Int      @default(800)
+  consecutiveFailureThreshold Int      @default(3)
+  emailEnabled                Boolean  @default(false)
+  emailRecipients             String[]
+  slackEnabled                Boolean  @default(false)
+  webhookEnabled              Boolean  @default(false)
+  webhookUrl                  String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+  project                     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model MonitoredApi {
+  id                        String          @id @default(cuid())
+  projectId                 String
+  name                      String
+  url                       String
+  method                    HttpMethod
+  headers                   Json?
+  body                      String?
+  monitoringIntervalSeconds Int
+  timeoutMs                 Int             @default(10000)
+  enabled                   Boolean         @default(true)
+  status                    MonitoringState @default(OPERATIONAL)
+  latencyThresholdMs        Int?
+  failureThreshold          Int?
+  consecutiveFailures       Int             @default(0)
+  lastCheckedAt             DateTime?
+  lastStatusCode            Int?
+  lastLatencyMs             Int?
+  lastError                 String?
+  nextCheckAt               DateTime        @default(now())
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+  project                   Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  logs                      ApiCheckLog[]
+  incidents                 Incident[]
+
+  @@index([projectId])
+  @@index([enabled, nextCheckAt])
+  @@index([projectId, status])
+}
+
+model ApiCheckLog {
+  id               String         @id @default(cuid())
+  projectId        String
+  apiId            String
+  checkedAt        DateTime       @default(now())
+  responseTimeMs   Int
+  statusCode       Int?
+  outcome          RequestOutcome
+  errorMessage     String?
+  responseHeaders  Json?
+  requestSnapshot  Json?
+  createdAt        DateTime       @default(now())
+  api              MonitoredApi   @relation(fields: [apiId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, checkedAt])
+  @@index([apiId, checkedAt])
+  @@index([outcome, checkedAt])
+}
+
+model Incident {
+  id           String           @id @default(cuid())
+  projectId    String
+  apiId        String
+  kind         IncidentKind
+  severity     IncidentSeverity
+  status       IncidentStatus   @default(OPEN)
+  title        String
+  summary      String
+  openedAt     DateTime         @default(now())
+  resolvedAt   DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  api          MonitoredApi     @relation(fields: [apiId], references: [id], onDelete: Cascade)
+  project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  events       IncidentEvent[]
+  alertEvents  AlertEvent[]
+
+  @@index([projectId, status])
+  @@index([apiId, status])
+  @@index([kind, status])
+}
+
+model IncidentEvent {
+  id         String         @id @default(cuid())
+  incidentId String
+  status     IncidentStatus
+  message    String
+  metadata   Json?
+  createdAt  DateTime       @default(now())
+  incident   Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId, createdAt])
+}
+
+model AlertEvent {
+  id             String              @id @default(cuid())
+  projectId      String
+  apiId          String?
+  incidentId     String?
+  channel        AlertChannel
+  type           String
+  subject        String
+  body           String
+  deliveryStatus AlertDeliveryStatus @default(PENDING)
+  deliveryError  String?
+  deliveredAt    DateTime?
+  createdAt      DateTime            @default(now())
+  project        Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  incident       Incident?           @relation(fields: [incidentId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, createdAt])
+  @@index([incidentId])
+}
