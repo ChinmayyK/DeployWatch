@@ -1,5 +1,21 @@
 # DeployWatch
 
+## The Problem
+
+Engineering teams often suffer from silent API failures and gradual latency degradation. Traditional ping monitors are too simplistic, while enterprise observability platforms are overly complex, deeply coupled with the infrastructure, and expensive. When an endpoint goes down or experiences heavy load, teams need immediate, reliable alerts decoupled from the failing system itself—without the overhead of installing massive server agents or dealing with noisy, uncoordinated incident reports.
+
+## The Solution
+
+DeployWatch is a high-frequency polling and automated incident response platform designed to be both lightweight and highly resilient. 
+
+It solves the problem through a decoupled, event-driven architecture:
+- **Decoupled Task Queues:** Uses BullMQ and Redis to isolate the monitoring workloads. A dispatcher worker schedules APIs due for checks without being tightly coupled to cron jobs or tying up request cycles.
+- **Resilient Polling:** Target API timeouts, worker node crashes, or database connection spikes won't crash the monitoring engine. Stalled jobs are automatically re-assigned to active workers.
+- **Smart Detection:** Instead of alerting on single blips, the detection logic evaluates consecutive failures and latency threshold breaches over time to prevent alert fatigue.
+- **Automated Incident Response:** When an outage is confirmed, DeployWatch automatically opens an incident, logs the historical timeline, and asynchronously fires off alerts (Email, Slack, Webhooks) using a dedicated worker to ensure rapid response times.
+
+---
+
 DeployWatch is organized as a split workspace:
 
 ```text
