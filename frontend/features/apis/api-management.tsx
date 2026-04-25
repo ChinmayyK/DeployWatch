@@ -60,67 +60,51 @@ export function ApiManagement({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 animate-slide-up">
       <PageHeader
         eyebrow={project?.name ?? "Project"}
         title="API management"
         description="Add and maintain monitoring definitions for each external dependency. Request configuration lives here while health and incidents flow into the rest of the product."
         action={
           <Button
+            size="sm"
             className="gap-2"
             onClick={() => {
               setEditingApi(undefined);
               setModalOpen(true);
             }}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3.5 w-3.5" />
             Add API
           </Button>
         }
       />
 
       {apis.length > 0 ? (
-        <div className="grid gap-5 xl:grid-cols-3">
-          <Card className="metric-shell">
-            <CardContent className="flex items-start justify-between gap-4 p-6">
-              <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">Monitors</p>
-                <p className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-slate-950">{apis.length}</p>
-                <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
-                  {enabledCount} active and checking upstream dependencies on a recurring cadence.
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-[20px] bg-slate-950 text-white shadow-[0_16px_34px_rgba(15,23,42,0.16)]">
-                <Activity className="h-5 w-5" />
-              </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card>
+            <CardContent className="p-5">
+              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Monitors</p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{apis.length}</p>
+              <p className="mt-1.5 text-xs text-[var(--text-muted)]">{enabledCount} active · checking upstream</p>
             </CardContent>
           </Card>
-          <Card className="metric-shell">
-            <CardContent className="p-6">
-              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">Coverage</p>
-              <p className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-slate-950">
+          <Card>
+            <CardContent className="p-5">
+              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Coverage</p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight text-emerald-600">
                 {apis.length === 0 ? "0%" : formatPercent((healthyCount / apis.length) * 100)}
               </p>
-              <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
-                {healthyCount} of {apis.length} monitors are currently reporting an operational state.
-              </p>
+              <p className="mt-1.5 text-xs text-[var(--text-muted)]">{healthyCount} of {apis.length} operational</p>
             </CardContent>
           </Card>
-          <Card className="metric-shell">
-            <CardContent className="flex items-start justify-between gap-4 p-6">
-              <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">Average cadence</p>
-                <p className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-slate-950">
-                  {averageInterval}
-                  <span className="ml-1 text-lg font-medium text-[var(--text-muted)]">min</span>
-                </p>
-                <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
-                  Monitoring intervals stay visible here so teams can balance cost, speed, and signal quality.
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-[20px] bg-white text-slate-900 ring-1 ring-[var(--border)]">
-                <TimerReset className="h-5 w-5" />
-              </div>
+          <Card>
+            <CardContent className="p-5">
+              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Avg cadence</p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
+                {averageInterval}<span className="ml-1 text-base font-medium text-[var(--text-muted)]">min</span>
+              </p>
+              <p className="mt-1.5 text-xs text-[var(--text-muted)]">Polling interval average</p>
             </CardContent>
           </Card>
         </div>
@@ -128,11 +112,12 @@ export function ApiManagement({ projectId }: { projectId: string }) {
 
       {apis.length === 0 ? (
         <EmptyState
+          icon={Activity}
           title="No API monitors configured"
           description="Create your first monitor to begin collecting availability, latency, and request logs."
           action={
-            <Button onClick={() => setModalOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
+            <Button size="sm" onClick={() => setModalOpen(true)} className="gap-2">
+              <Plus className="h-3.5 w-3.5" />
               Add API
             </Button>
           }
@@ -144,77 +129,62 @@ export function ApiManagement({ projectId }: { projectId: string }) {
             description="Each monitor tracks a concrete endpoint, request shape, and response profile."
           />
           <CardContent className="overflow-x-auto p-0">
-            <table className="table-shell min-w-full divide-y divide-[var(--border)]">
-              <thead className="bg-[var(--surface-muted)]/80">
-                <tr className="text-left text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
-                  <th className="px-5 py-3 font-medium">API</th>
-                  <th className="px-5 py-3 font-medium">Status</th>
-                  <th className="px-5 py-3 font-medium">Latency</th>
-                  <th className="px-5 py-3 font-medium">Uptime</th>
-                  <th className="px-5 py-3 font-medium">Monitoring</th>
-                  <th className="px-5 py-3 font-medium">Actions</th>
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-[var(--border)]/70 bg-[var(--surface-muted)]/50 text-left">
+                  <th className="px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-medium">API</th>
+                  <th className="px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-medium">Status</th>
+                  <th className="px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-medium">Latency</th>
+                  <th className="px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-medium">Uptime</th>
+                  <th className="px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-medium">Monitoring</th>
+                  <th className="px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-medium">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--border)]">
+              <tbody className="divide-y divide-[var(--border)]/50">
                 {apis.map((api) => (
-                  <tr key={api.id} className="align-top text-sm text-slate-900 transition hover:bg-white/65">
+                  <tr key={api.id} className="group align-top text-sm transition-colors hover:bg-slate-50/60">
                     <td className="px-5 py-4">
-                      <Link href={`/projects/${projectId}/apis/${api.id}`} className="group block">
+                      <Link href={`/projects/${projectId}/apis/${api.id}`} className="group/link block">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-semibold text-slate-900 transition group-hover:text-slate-700">{api.name}</p>
-                          <span className="inline-flex rounded-full border border-[var(--border)] bg-white px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+                          <p className="font-medium text-slate-900 group-hover/link:text-slate-700">{api.name}</p>
+                          <span className="rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-1.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-slate-600">
                             {api.method}
                           </span>
                         </div>
-                        <p className="mt-2 font-mono text-xs text-[var(--text-muted)]">{api.url}</p>
-                        <p className="mt-2 text-xs text-[var(--text-muted)]">
-                          Every {api.intervalMinutes} minute{api.intervalMinutes > 1 ? "s" : ""} • Last checked{" "}
-                          {formatRelativeTime(api.health.lastCheckedAt)}
-                        </p>
+                        <p className="mt-1 font-mono text-xs text-[var(--text-muted)]">{api.url}</p>
                       </Link>
                     </td>
                     <td className="px-5 py-4">
                       <Badge className={statusTone(api.health.status)}>{api.health.status}</Badge>
                     </td>
-                    <td className="px-5 py-4 font-mono">
-                      <p className="font-semibold text-slate-950">{formatLatency(api.health.latestLatencyMs)}</p>
-                      <p className="mt-1 text-xs text-[var(--text-muted)]">{formatTimestamp(api.health.lastCheckedAt)}</p>
+                    <td className="px-5 py-4 font-mono text-sm text-slate-700">
+                      {formatLatency(api.health.latestLatencyMs)}
+                    </td>
+                    <td className="px-5 py-4 text-sm text-slate-700">
+                      {formatPercent(api.health.uptimePercentage)}
                     </td>
                     <td className="px-5 py-4">
-                      <p className="font-semibold text-slate-950">{formatPercent(api.health.uptimePercentage)}</p>
-                      <p className="mt-1 text-xs text-[var(--text-muted)]">
-                        {api.health.successfulChecks} successful checks
-                      </p>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2.5">
                         <Switch
                           checked={api.enabled}
                           onCheckedChange={(enabled) => toggleApi.mutate({ apiId: api.id, enabled })}
                         />
-                        <div>
-                          <p className="text-sm font-medium text-slate-900">{api.enabled ? "Enabled" : "Paused"}</p>
-                          <p className="text-xs text-[var(--text-muted)]">
-                            {api.enabled ? "Checks continue on schedule" : "No new checks will be sent"}
-                          </p>
-                        </div>
+                        <p className="text-xs text-[var(--text-muted)]">{api.enabled ? "Active" : "Paused"}</p>
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex gap-2">
                         <Button
                           variant="secondary"
-                          className="gap-2"
-                          onClick={() => {
-                            setEditingApi(api);
-                            setModalOpen(true);
-                          }}
+                          size="sm"
+                          className="gap-1.5"
+                          onClick={() => { setEditingApi(api); setModalOpen(true); }}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-3 w-3" />
                           Edit
                         </Button>
-                        <Button variant="danger" className="gap-2" onClick={() => deleteApi.mutate(api.id)}>
-                          <Trash2 className="h-4 w-4" />
+                        <Button variant="danger" size="sm" className="gap-1.5" onClick={() => deleteApi.mutate(api.id)}>
+                          <Trash2 className="h-3 w-3" />
                           Delete
                         </Button>
                       </div>

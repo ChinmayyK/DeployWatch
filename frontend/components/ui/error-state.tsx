@@ -1,3 +1,5 @@
+import { AlertCircle } from "lucide-react";
+
 export function ErrorState({
   title = "Something went wrong",
   message,
@@ -6,9 +8,12 @@ export function ErrorState({
   message: string;
 }) {
   return (
-    <div className="rounded-[24px] border border-rose-200 bg-[linear-gradient(180deg,#fff7f7_0%,#ffefef_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-      <h3 className="text-sm font-semibold text-rose-900">{title}</h3>
-      <p className="mt-1.5 text-sm leading-6 text-rose-800">{message}</p>
+    <div className="flex gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3.5">
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+      <div>
+        <p className="text-sm font-semibold text-rose-900">{title}</p>
+        <p className="mt-0.5 text-sm text-rose-700">{message}</p>
+      </div>
     </div>
   );
 }

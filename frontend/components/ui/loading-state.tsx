@@ -1,13 +1,19 @@
-export function LoadingState({ label = "Loading workspace..." }: { label?: string }) {
+export function LoadingState({ label = "Loading..." }: { label?: string }) {
   return (
-    <div className="surface-glow flex min-h-[260px] flex-col items-center justify-center rounded-[28px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(246,249,252,0.92)_100%)]">
-      <div className="flex gap-1.5">
-        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-900" />
-        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-500 [animation-delay:120ms]" />
-        <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-300 [animation-delay:240ms]" />
+    <div className="flex min-h-[200px] w-full max-w-sm flex-col items-center justify-center gap-5 rounded-2xl border border-white/80 bg-white/90 px-8 py-10 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_8px_24px_rgba(13,21,38,0.06)] ring-1 ring-slate-950/5">
+      {/* Animated logo mark */}
+      <div className="relative flex h-10 w-10 items-center justify-center">
+        <span className="absolute h-10 w-10 animate-ping rounded-full bg-slate-200 opacity-60" style={{ animationDuration: "1.6s" }} />
+        <svg viewBox="0 0 20 20" fill="none" className="relative h-5 w-5">
+          <circle cx="10" cy="10" r="3" fill="#0f172a" />
+          <circle cx="10" cy="10" r="7" stroke="#0f172a" strokeWidth="1.5" strokeOpacity="0.25" />
+          <circle cx="10" cy="10" r="9.5" stroke="#0f172a" strokeWidth="1" strokeOpacity="0.1" />
+        </svg>
       </div>
-      <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">DeployWatch</p>
-      <p className="mt-2 text-sm text-[var(--text-muted)]">{label}</p>
+      <div className="text-center">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)]">DeployWatch</p>
+        <p className="mt-1.5 text-sm text-[var(--text-muted)]">{label}</p>
+      </div>
     </div>
   );
 }

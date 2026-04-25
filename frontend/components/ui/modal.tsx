@@ -1,7 +1,6 @@
 "use client";
 
 import { X } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 export function Modal({
@@ -19,33 +18,41 @@ export function Modal({
   onClose: () => void;
   className?: string;
 }) {
-  if (!open) {
-    return null;
-  }
+  if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-8 backdrop-blur-md">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm animate-fade-in" />
+
+      {/* Panel */}
       <div
         className={cn(
-          "animate-modal-enter surface-glow w-full max-w-2xl overflow-hidden rounded-[30px] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(246,249,252,0.94)_100%)]",
+          "animate-modal-enter relative w-full max-w-xl overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_32px_80px_rgba(13,21,38,0.2)] ring-1 ring-slate-950/5",
           className,
         )}
       >
-        <div className="relative flex items-start justify-between border-b border-[var(--border)]/80 px-6 py-5">
-          <div className="absolute inset-x-0 top-0 h-px bg-white/80" />
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-[var(--border)]/70 px-6 py-5">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-[var(--text-muted)]">Configuration</p>
-            <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">{title}</h3>
-            {description ? <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--text-muted)]">{description}</p> : null}
+            <h3 className="text-base font-semibold tracking-tight text-slate-900">{title}</h3>
+            {description ? (
+              <p className="mt-1 text-sm text-[var(--text-muted)]">{description}</p>
+            ) : null}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-transparent text-[var(--text-muted)] transition hover:border-[var(--border)] hover:bg-white hover:text-slate-900"
+            className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
+
+        {/* Body */}
         <div className="p-6">{children}</div>
       </div>
     </div>

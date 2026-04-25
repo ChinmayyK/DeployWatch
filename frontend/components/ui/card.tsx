@@ -4,7 +4,7 @@ export function Card({ children, className }: { children: React.ReactNode; class
   return (
     <section
       className={cn(
-        "surface-glow rounded-[28px] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(248,250,252,0.92)_100%)] ring-1 ring-slate-950/5",
+        "surface-glow rounded-2xl border border-white/80 bg-white/90 ring-1 ring-slate-950/5",
         className,
       )}
     >
@@ -23,10 +23,10 @@ export function CardHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-[var(--border)]/80 px-6 py-5 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 border-b border-[var(--border)]/70 px-6 py-5 md:flex-row md:items-center md:justify-between">
       <div>
-        <h2 className="text-base font-semibold tracking-tight text-slate-950">{title}</h2>
-        {description ? <p className="mt-1.5 text-sm leading-6 text-[var(--text-muted)]">{description}</p> : null}
+        <h2 className="text-sm font-semibold tracking-tight text-slate-900">{title}</h2>
+        {description ? <p className="mt-1 text-sm text-[var(--text-muted)]">{description}</p> : null}
       </div>
       {action}
     </div>

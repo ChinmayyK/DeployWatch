@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
 import { useProjectMutations } from "@/hooks/use-deploywatch";
 import type { ProjectWithAlertConfig } from "@/types";
+import { cn } from "@/lib/utils";
 
 export function ProjectSwitcher({
   projects,
@@ -20,26 +20,23 @@ export function ProjectSwitcher({
   const { setActiveProject } = useProjectMutations();
   const [isPending, startTransition] = useTransition();
 
+  const active = projects.find((p) => p.id === activeProjectId);
+
   return (
-    <div className="rounded-[24px] border border-white/10 bg-white/5 p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-950 shadow-[0_10px_25px_rgba(15,23,42,0.24)]">
-            <FolderKanban className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">Projects</p>
-            <p className="text-xs text-[var(--sidebar-muted)]">Switch workspace context</p>
-          </div>
+    <div className="space-y-1">
+      {/* Active project display */}
+      <div className="flex items-center gap-2 rounded-xl px-2 py-1.5">
+        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15">
+          <FolderKanban className="h-3.5 w-3.5 text-white" />
         </div>
-        <Link
-          href="/projects"
-          className="rounded-xl px-2.5 py-1.5 text-xs font-medium text-[var(--sidebar-muted)] transition hover:bg-white/10 hover:text-white"
-        >
-          View all
-        </Link>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-white">{active?.name ?? "Select project"}</p>
+          <p className="text-[10px] capitalize text-[var(--sidebar-muted)]">{active?.environment?.toLowerCase() ?? "—"}</p>
+        </div>
       </div>
-      <div className="relative mt-4">
+
+      {/* Switcher select */}
+      <div className="relative">
         <select
           value={activeProjectId ?? ""}
           disabled={isPending}
@@ -51,20 +48,29 @@ export function ProjectSwitcher({
               });
             });
           }}
-          className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-black/15 px-4 pr-10 text-sm text-white outline-none transition focus:border-white/25"
+          className={cn(
+            "h-9 w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-white/8 pl-3 pr-8 text-xs text-slate-300 outline-none transition",
+            "hover:border-white/20 hover:bg-white/12 focus:border-white/25 focus:text-white",
+            isPending && "opacity-50 cursor-not-allowed",
+          )}
         >
           {projects.map((project) => (
-            <option key={project.id} value={project.id}>
+            <option key={project.id} value={project.id} className="bg-slate-900 text-white">
               {project.name}
             </option>
           ))}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--sidebar-muted)]" />
+        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-500" />
       </div>
-      <Button variant="secondary" className="mt-3 w-full justify-center gap-2 border-white/10 bg-white/8 text-white hover:bg-white/12" onClick={() => router.push("/projects")}>
-        <Plus className="h-4 w-4" />
+
+      {/* New project link */}
+      <Link
+        href="/projects"
+        className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-[var(--sidebar-muted)] transition hover:bg-white/6 hover:text-slate-300"
+      >
+        <Plus className="h-3 w-3" />
         New project
-      </Button>
+      </Link>
     </div>
   );
 }
