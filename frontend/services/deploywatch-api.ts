@@ -26,8 +26,11 @@ export const deploywatchApi = {
         name: user.name,
         email: user.email,
       };
-    } catch (error) {
-      this.logout();
+    } catch {
+      // Token is invalid or expired — clear local storage silently.
+      // Do NOT call logout() here (it invalidates queries, causing an infinite loop).
+      writeSessionStorage(null);
+      clearSessionCookie();
       return null;
     }
   },

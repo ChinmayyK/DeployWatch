@@ -28,9 +28,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (mounted && !sessionLoading && !session) {
-      window.location.href = "/login";
+      router.replace("/login");
     }
-  }, [mounted, session, sessionLoading]);
+  }, [mounted, session, sessionLoading, router]);
 
   const activeProjectId = useMemo(() => {
     const match = pathname.match(/\/projects\/([^/]+)/);

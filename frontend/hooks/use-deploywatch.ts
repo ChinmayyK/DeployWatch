@@ -35,6 +35,8 @@ export function useSessionQuery() {
   return useQuery<Session | null>({
     queryKey: queryKeys.session,
     queryFn: () => deploywatchApi.getSession(),
+    retry: false,
+    staleTime: 60_000,
   });
 }
 
