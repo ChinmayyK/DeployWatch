@@ -26,11 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (mounted && !sessionLoading && !session) {
-      router.replace("/login");
-    }
-  }, [mounted, session, sessionLoading, router]);
+
 
   const activeProjectId = useMemo(() => {
     const match = pathname.match(/\/projects\/([^/]+)/);
@@ -46,6 +42,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (!session) {
+    // Use window.location so the browser re-evaluates middleware with fresh cookies.
+    // This prevents the cookie/localStorage desync loop.
+    if (typeof window !== "undefined") {
+      window.location.replace("/login");
+    }
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-7xl items-center px-6 py-10">
         <div className="w-full text-center">

@@ -17,7 +17,12 @@ import { apiFetch } from "./api-client";
 export const deploywatchApi = {
   async getSession(): Promise<Session | null> {
     const session = readSessionStorage();
-    if (!session) return null;
+    if (!session) {
+      // localStorage is gone but cookie may still be set — clear it so middleware
+      // doesn't block the redirect to /login.
+      clearSessionCookie();
+      return null;
+    }
     
     try {
       const { user } = await apiFetch<{ user: any }>("/auth/me");
@@ -27,7 +32,7 @@ export const deploywatchApi = {
         email: user.email,
       };
     } catch {
-      // Token is invalid or expired — clear local storage silently.
+      // Token is invalid or expired — clear local storage and cookie silently.
       // Do NOT call logout() here (it invalidates queries, causing an infinite loop).
       writeSessionStorage(null);
       clearSessionCookie();
