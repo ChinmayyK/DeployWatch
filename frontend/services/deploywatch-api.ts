@@ -77,7 +77,7 @@ export const deploywatchApi = {
   },
 
   async getProjects(): Promise<ProjectWithAlertConfig[]> {
-    const projects = await apiFetch<any[]>("/projects");
+    const { projects } = await apiFetch<{ projects: any[] }>("/projects");
     return projects.map((p) => ({
       ...p,
       ownerUserId: p.ownerId, // Map backend ownerId to frontend ownerUserId
@@ -91,9 +91,12 @@ export const deploywatchApi = {
   },
 
   async createProject(input: ProjectInput): Promise<Project> {
-    const project = await apiFetch<any>("/projects", {
+    const { project } = await apiFetch<{ project: any }>("/projects", {
       method: "POST",
-      body: JSON.stringify(input),
+      body: JSON.stringify({
+        ...input,
+        environment: input.environment.toUpperCase(),
+      }),
     });
     
     // Update active project in session
@@ -133,7 +136,7 @@ export const deploywatchApi = {
   },
 
   async getProject(projectId: string): Promise<ProjectWithAlertConfig> {
-    const project = await apiFetch<any>(`/projects/${projectId}`);
+    const { project } = await apiFetch<{ project: any }>(`/projects/${projectId}`);
     return {
       ...project,
       ownerUserId: project.ownerId,
@@ -142,7 +145,7 @@ export const deploywatchApi = {
   },
 
   async getApis(projectId: string) {
-    const apis = await apiFetch<any[]>(`/projects/${projectId}/apis`);
+    const { apis } = await apiFetch<{ apis: any[] }>(`/projects/${projectId}/apis`);
     return apis.map((api) => ({
       ...api,
       health: api.health,
@@ -150,17 +153,19 @@ export const deploywatchApi = {
   },
 
   async createApi(projectId: string, input: ApiInput): Promise<MonitoredApi> {
-    return apiFetch(`/projects/${projectId}/apis`, {
+    const { api } = await apiFetch<{ api: MonitoredApi }>(`/projects/${projectId}/apis`, {
       method: "POST",
       body: JSON.stringify(input),
     });
+    return api;
   },
 
   async updateApi(projectId: string, apiId: string, input: ApiInput): Promise<MonitoredApi> {
-    return apiFetch(`/projects/${projectId}/apis/${apiId}`, {
+    const { api } = await apiFetch<{ api: MonitoredApi }>(`/projects/${projectId}/apis/${apiId}`, {
       method: "PATCH",
       body: JSON.stringify(input),
     });
+    return api;
   },
 
   async deleteApi(projectId: string, apiId: string): Promise<boolean> {
@@ -171,22 +176,26 @@ export const deploywatchApi = {
   },
 
   async toggleApi(projectId: string, apiId: string, enabled: boolean): Promise<MonitoredApi> {
-    return apiFetch(`/projects/${projectId}/apis/${apiId}/toggle`, {
+    const { api } = await apiFetch<{ api: MonitoredApi }>(`/projects/${projectId}/apis/${apiId}/toggle`, {
       method: "PATCH",
       body: JSON.stringify({ enabled }),
     });
+    return api;
   },
 
   async getApiDetail(projectId: string, apiId: string): Promise<ApiDetail> {
-    return apiFetch(`/projects/${projectId}/apis/${apiId}`);
+    const { api } = await apiFetch<{ api: ApiDetail }>(`/projects/${projectId}/apis/${apiId}`);
+    return api;
   },
 
   async getIncidents(projectId: string): Promise<Incident[]> {
-    return apiFetch(`/projects/${projectId}/incidents`);
+    const { incidents } = await apiFetch<{ incidents: Incident[] }>(`/projects/${projectId}/incidents`);
+    return incidents;
   },
 
   async getIncident(projectId: string, incidentId: string): Promise<Incident> {
-    return apiFetch(`/projects/${projectId}/incidents/${incidentId}`);
+    const { incident } = await apiFetch<{ incident: Incident }>(`/projects/${projectId}/incidents/${incidentId}`);
+    return incident;
   },
 
   async getLogs(projectId: string, filter: LogsFilter): Promise<any[]> {
@@ -194,17 +203,20 @@ export const deploywatchApi = {
       range: filter.range,
       outcome: filter.outcome,
     });
-    return apiFetch(`/projects/${projectId}/logs?${query}`);
+    const { logs } = await apiFetch<{ logs: any[] }>(`/projects/${projectId}/logs?${query}`);
+    return logs;
   },
 
   async getAlertConfig(projectId: string): Promise<AlertConfig> {
-    return apiFetch(`/projects/${projectId}/alerts`);
+    const { alertConfig } = await apiFetch<{ alertConfig: AlertConfig }>(`/projects/${projectId}/alerts`);
+    return alertConfig;
   },
 
   async updateAlertConfig(projectId: string, input: Omit<AlertConfig, "projectId">): Promise<AlertConfig> {
-    return apiFetch(`/projects/${projectId}/alerts`, {
+    const { alertConfig } = await apiFetch<{ alertConfig: AlertConfig }>(`/projects/${projectId}/alerts`, {
       method: "PATCH",
       body: JSON.stringify(input),
     });
+    return alertConfig;
   },
 };
